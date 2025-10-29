@@ -1,0 +1,97 @@
+Students = {} 
+Grades = {} 
+
+
+function Student(Name, Grades)
+    local Student = {} 
+    local grades = {}
+    Student.name = Name 
+    Student.grades = Grades
+    return Student
+end  
+
+function Grade(Score, Weight)  
+    local Weight = Weight or 1.0
+    local Grade = {}
+    Grade.score = Score 
+    Grade.weight = Weight 
+    return Grade
+end 
+
+function WeightedGrade(Grade)  
+    return Grade.score * Grade.weight
+end
+
+function LetterGrade(Grade)
+    if Grade >= 90 then 
+        return "A" 
+    elseif Grade >= 80 then 
+        return "B"
+    elseif Grade >= 70 then
+        return "C"
+    elseif Grade >= 60 then
+        return "D"
+    else 
+        return "F"
+    end 
+end 
+
+function CalculateGPA(Student) 
+    local iter = 1 
+    local total = 0 
+    while iter <= #Student.grades do  
+        local letterGrade = LetterGrade(Student.grades[iter]) 
+        if(letterGrade == "A") then 
+            total = total + 4.0 
+        elseif(letterGrade == "B") then 
+            total = total + 3.0 
+        elseif(letterGrade== "C") then 
+            total = total + 2.0
+        elseif(letterGrade == "D") then
+            total = total + 1.0
+        else
+            total = total + 0.0
+        end 
+        iter = iter + 1
+    end 
+    return total / #Student.grades
+end 
+
+function AverageGrade(student)
+    local iter = 1 
+    local total = 0 
+    while iter <= #student.grades do 
+        total = total + student.grades[iter]
+        iter = iter + 1
+    end 
+    return total / #student.grades 
+end 
+
+function WeightedAverage(Student) 
+    local iter = 1 
+    local total = 0 
+    while iter <= #Student.grades do 
+        total = total + WeightedGrade(Grade(Student.grades[iter]))
+        iter = iter + 1
+    end
+    return total / #Student.grades
+end 
+
+function PrintStudent(Student)
+    print("Name: ".. Student.name) 
+    print("GPA: ".. CalculateGPA(Student))
+end
+
+Students[1] = Student("Alice", {95, 85, 76, 88})
+Students[2] = Student("Bob", {67, 73, 80, 90})
+Students[3] = Student("Charlie", {100, 92, 89, 94})
+
+local iter = 1 
+while iter <= #Students do 
+    PrintStudent(Students[iter]) 
+    print("Weighted Average:".. WeightedAverage(Students[iter]))
+    iter = iter + 1
+end
+
+
+
