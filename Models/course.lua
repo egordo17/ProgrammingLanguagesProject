@@ -1,12 +1,10 @@
 local Course = {}
 Course.__index = Course
 
-function Course:new(id, title, sections)
-    local self = setmetatable({}, Course)
-    self.id = id
-    self.title = title
-    self.sections = sections or {}
-    return self
+function Course.new(tbl)
+    tbl.assignments = tbl.assignments or {}
+    tbl.students = tbl.students or {}
+    return setmetatable(tbl, Course)
 end
 
 return Course
