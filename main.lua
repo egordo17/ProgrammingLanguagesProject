@@ -7,8 +7,8 @@ local Admin = require("services.admin")
 local CourseReport = require("reports.course")
 local StudentReport = require("reports.student")
 
--- Load DB
-local db_path = "spec/test_data.json"
+-- Load DB from Lua table
+local db_path = "gradebook_data.lua"
 local db = Persist.load(db_path)
 if not db then
     print("Failed to load database at " .. db_path)
@@ -16,17 +16,64 @@ if not db then
 end
 
 ------------------------------------------------------------
+-- Generic helpers for safe IO and calls
+------------------------------------------------------------
+
+local function read_number(prompt)
+    while true do
+        io.write(prompt)
+        local input = io.read()
+        local n = tonumber(input)
+        if n then
+            return n
+        end
+        print("Please enter a valid number.")
+    end
+end
+
+local function read_nonempty_string(prompt)
+    while true do
+        io.write(prompt)
+        local input = io.read()
+        if input ~= "" then
+            return input
+        end
+        print("Input cannot be empty.")
+    end
+end
+
+local function read_optional_number(prompt)
+    while true do
+        io.write(prompt)
+        local input = io.read()
+        if input == "" then
+            return nil
+        end
+        local n = tonumber(input)
+        if n then
+            return n
+        end
+        print("Please enter a valid number or leave blank to skip.")
+    end
+end
+
+local function safe_call(label, fn, ...)
+    local ok, err = pcall(fn, ...)
+    if not ok then
+        print("[error in " .. label .. "]: " .. tostring(err))
+    end
+end
+
+------------------------------------------------------------
 -- Utility Functions
 ------------------------------------------------------------
 
--- Find student by ID
 local function find_student(id)
     for _, s in ipairs(db.students) do
         if s.id == id then return s end
     end
 end
 
--- Check if student is already in course
 local function is_student_in_course(course, id)
     for _, s in ipairs(course.students) do
         if s.id == id then
@@ -36,7 +83,6 @@ local function is_student_in_course(course, id)
     return false
 end
 
--- Add student to course
 local function add_student_to_course(course)
     print("\nAvailable students to add:")
 
@@ -53,16 +99,9 @@ local function add_student_to_course(course)
         return
     end
 
-    io.write("Enter Student ID to add (or press Enter to cancel): ")
-    local input = io.read()
-    if input == "" then
+    local sid = read_number("Enter Student ID to add (or 0 to cancel): ")
+    if sid == 0 then
         print("Add student cancelled.")
-        return
-    end
-
-    local sid = tonumber(input)
-    if not sid then
-        print("Invalid ID. Must be a number.")
         return
     end
 
@@ -81,9 +120,12 @@ local function add_student_to_course(course)
     print("Student " .. student_obj.name .. " added to course " .. course.title .. ".")
 end
 
--- Show student report
 local function show_student(student, course)
-    StudentReport.show(student, course, db.submissions)
+    if not student then
+        print("[warning] Tried to show report for missing student.")
+        return
+    end
+    safe_call("StudentReport.show", StudentReport.show, student, course, db.submissions, db.weights, db.students)
 end
 
 ------------------------------------------------------------
@@ -107,138 +149,140 @@ local function course_menu(course)
         io.write("Choose option: ")
         local opt = io.read()
 
-        -- Show all students
         if opt == "1" then
             for _, s in ipairs(course.students) do
                 local student_obj = find_student(s.id)
-                StudentReport.show(student_obj, course, db.submissions, db.weights, db.students)
+                if student_obj then
+                    show_student(student_obj, course)
+                else
+                    print("[warning] Course references missing student ID " .. tostring(s.id))
+                end
             end
 
-        -- Search student by name
         elseif opt == "2" then
-            io.write("Enter student name: ")
-            local name = io.read()
+            local name = read_nonempty_string("Enter student name: ")
+            local found_any = false
             for _, s in ipairs(course.students) do
                 local student_obj = find_student(s.id)
-                if student_obj.name:lower():find(name:lower()) then
-                    StudentReport.show(student_obj, course, db.submissions, db.weights, db.students)
+                if student_obj and student_obj.name:lower():find(name:lower()) then
+                    show_student(student_obj, course)
+                    found_any = true
                 end
             end
+            if not found_any then
+                print("No students found matching that name.")
+            end
 
-        -- Show assignments
         elseif opt == "3" then
-            CourseReport.show(course, db.submissions, db.students)
+            safe_call("CourseReport.show", CourseReport.show, course, db.submissions, db.students)
 
-        -- Edit grade
         elseif opt == "4" then
-            io.write("Enter Assignment ID to edit: ")
-            local aid = tonumber(io.read())
-            io.write("Enter Student ID: ")
-            local sid = tonumber(io.read())
-            io.write("Enter new score (in points): ")
-            local score = tonumber(io.read())
-            
+            local aid = read_number("Enter Assignment ID to edit: ")
+            local sid = read_number("Enter Student ID: ")
+            local score = read_number("Enter new score (in points): ")
+
             local student_obj = find_student(sid)
             local assignment_obj
-            for _, a in ipairs(course.assignments) do 
-                if a.id == aid then assignment_obj = a end 
+            for _, a in ipairs(course.assignments) do
+                if a.id == aid then assignment_obj = a end
             end
-            
-            if student_obj and assignment_obj then
-                Admin.edit_grade(student_obj, assignment_obj, db.submissions, score)
-                print("Grade updated.")
+
+            if not student_obj then
+                print("No student found with ID " .. sid)
+            elseif not assignment_obj then
+                print("No assignment found with ID " .. aid)
             else
-                print("Invalid student or assignment ID.")
+                safe_call("Admin.edit_grade", Admin.edit_grade, student_obj, assignment_obj, db.submissions, score)
+                print("Grade updated.")
             end
 
-        -- Add assignment
         elseif opt == "5" then
-            io.write("Assignment name: ")
-            local name = io.read()
-            io.write("Points (100/50/25): ")
-            local points = tonumber(io.read())
-            io.write("Category (Exams/HW/Labs): ")
-            local cat = io.read()
-            io.write("Due date (YYYY-MM-DD): ")
-            local due = io.read()
-            io.write("Late penalty: ")
-            local lp = tonumber(io.read())
+            local name = read_nonempty_string("Assignment name: ")
+            local points = read_number("Points (100/50/25): ")
+            local cat = read_nonempty_string("Category (Exams/HW/Labs): ")
+            local due = read_nonempty_string("Due date (YYYY-MM-DD): ")
+            local lp = read_number("Late penalty: ")
 
-            local assignment_obj = Admin.add_assignment(course, name, points, cat, due, lp)
+            local assignment_obj
+            safe_call("Admin.add_assignment", function()
+                assignment_obj = Admin.add_assignment(course, name, points, cat, due, lp)
+            end)
 
-            print("Enter initial grades for students (leave empty to skip):")
-            for _, s in ipairs(course.students) do
-                io.write("Student " .. s.id .. " (" .. find_student(s.id).name .. ") score: ")
-                local val = io.read()
-                if val ~= "" then
-                    Admin.edit_grade(find_student(s.id), assignment_obj, db.submissions, tonumber(val))
+            if not assignment_obj then
+                print("Failed to add assignment (see error above).")
+            else
+                print("Enter initial grades for students (leave empty to skip):")
+                for _, s in ipairs(course.students) do
+                    local student_obj = find_student(s.id)
+                    if student_obj then
+                        local prompt = "Student " .. s.id .. " (" .. student_obj.name .. ") score: "
+                        local score = read_optional_number(prompt)
+                        if score ~= nil then
+                            safe_call("Admin.edit_grade", Admin.edit_grade, student_obj, assignment_obj, db.submissions, score)
+                        end
+                    else
+                        print("[warning] Course references missing student ID " .. tostring(s.id))
+                    end
                 end
+                print("Assignment added.")
             end
-            print("Assignment added.")
 
-        -- Delete assignment
         elseif opt == "6" then
-            io.write("Enter Assignment ID to delete: ")
-            local aid = tonumber(io.read())
-            Admin.delete_assignment(course, aid)
+            local aid = read_number("Enter Assignment ID to delete: ")
+            safe_call("Admin.delete_assignment", Admin.delete_assignment, course, aid)
             print("Assignment deleted.")
 
-        -- Add student to course
         elseif opt == "7" then
             add_student_to_course(course)
 
-        -- Remove student from course
         elseif opt == "8" then
-            io.write("Enter Student ID to remove: ")
-            local sid = tonumber(io.read())
-            Admin.remove_student(course, sid)
-            print("Student removed from course.")
+            local sid = read_number("Enter Student ID to remove: ")
+            local student_obj = find_student(sid)
+            if not student_obj then
+                print("No student found with ID " .. sid)
+            else
+                safe_call("Admin.remove_student", Admin.remove_student, course, sid)
+                print("Student removed from course.")
+            end
 
-        -- Change student status
         elseif opt == "9" then
-            io.write("Enter Student ID: ")
-            local sid = tonumber(io.read())
-            io.write("Enter status (active/inactive): ")
-            local status = io.read()
+            local sid = read_number("Enter Student ID: ")
+            local status = read_nonempty_string("Enter status (active/inactive): ")
             local student_obj = find_student(sid)
             if student_obj then
-                Admin.change_student_status(student_obj, status)
+                safe_call("Admin.change_student_status", Admin.change_student_status, student_obj, status)
                 print("Status updated.")
             else
                 print("Invalid Student ID.")
             end
 
-        -- Save DB
         elseif opt == "10" then
-            Persist.save(db_path, db)
+            safe_call("Persist.save", Persist.save, db_path, db)
             print("Database saved.")
 
-        -- Back to courses
         elseif opt == "0" then
             break
+
         else
             print("Invalid option.")
         end
     end
 end
 
+------------------------------------------------------------
 -- Main Menu
+------------------------------------------------------------
 
 while true do
     print("\n--- Courses ---")
-
     for i, c in ipairs(db.courses) do
         print(string.format("%d. %s (ID: %d)", i, c.title, c.id))
     end
     print("0. Exit\n")
 
-    io.write("Select an option: ")
-    local input = io.read()
-    local sel = tonumber(input)
+    local sel = read_number("Select an option: ")
 
-    if not sel then
-        print("Invalid input. Please enter a number.")
-    elseif sel == 0 then
+    if sel == 0 then
         print("Exiting program. Goodbye!")
         break
     elseif db.courses[sel] then
@@ -249,4 +293,5 @@ while true do
     end
 end
 
-
+safe_call("Persist.save(exit)", Persist.save, db_path, db)
+print("All changes saved!")
