@@ -104,10 +104,6 @@ local function is_student_in_course(course, id)
     return false
 end
 
-<<<<<<< Updated upstream
-
-=======
->>>>>>> Stashed changes
 local function show_student(student, course)
     if not student then
         print("[warning] Tried to show report for missing student.")
