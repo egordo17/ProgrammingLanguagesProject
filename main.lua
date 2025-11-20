@@ -86,47 +86,7 @@ local function is_student_in_course(course, id)
     return false
 end
 
-<<<<<<< Updated upstream
-=======
-local function add_student_to_course(course)
-    print("\nAvailable students to add:")
 
-    local has_available = false
-    for _, s in ipairs(db.students) do
-        if not is_student_in_course(course, s.id) then
-            has_available = true
-            print(string.format("ID: %d  Name: %s", s.id, s.name))
-        end
-    end
-
-    if not has_available then
-        print("All students are already in this course.")
-        return
-    end
-
-    local sid = read_number("Enter Student ID to add (or 0 to cancel): ")
-    if sid == 0 then
-        print("Add student cancelled.")
-        return
-    end
-
-    local student_obj = find_student(sid)
-    if not student_obj then
-        print("No student found with that ID.")
-        return
-    end
-
-    if is_student_in_course(course, sid) then
-        print("That student is already enrolled in this course.")
-        return
-    end
-
-    table.insert(course.students, { id = sid })
-    db_dirty = true
-    print("Student " .. student_obj.name .. " added to course " .. course.title .. ".")
-end
-
->>>>>>> Stashed changes
 local function show_student(student, course)
     if not student then
         print("[warning] Tried to show report for missing student.")
