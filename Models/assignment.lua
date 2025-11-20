@@ -1,20 +1,23 @@
 local Assignment = {}
 Assignment.__index = Assignment
 
-local function parse_date(datestr)
-    local y, m, d, H, M = datestr:match("(%d+)%-(%d+)%-(%d+) (%d+):(%d+)")
-    return os.time({year=y, month=m, day=d, hour=H, min=M})
+function Assignment.new(tbl)
+    tbl.category = tbl.category or "Uncategorized"
+    tbl.due = tbl.due or "1970-01-01"
+    tbl.late_penalty = tbl.late_penalty or 0
+    return setmetatable(tbl, Assignment)
 end
 
-function Assignment:new(id, course_id, category, points, due, drop, late_penalty)
-    local self = setmetatable({}, Assignment)
-    self.id = id
-    self.course_id = course_id
-    self.category = category
-    self.points = points
-    self.due = parse_date(due)
-    self.drop = drop or false
-    self.late_penalty = late_penalty or 0
-    return self
+function Assignment:get_average(submissions)
+    local total, count = 0,0
+    for _, sub in ipairs(submissions) do
+        if sub.assignment_id == self.id then
+            total = total + sub.score
+            count = count + 1
+        end
+    end
+    if count==0 then return 0 end
+    return total/count
 end
 
+return Assignment
