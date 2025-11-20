@@ -67,6 +67,24 @@ local function safe_call(label, fn, ...)
     end
 end
 
+local function confirm(prompt)
+    while true do
+        io.write(prompt .. " (y/n): ")
+        local input = io.read()
+        if not input then
+            return false
+        end
+        input = input:lower()
+        if input == "y" or input == "yes" then
+            return true
+        elseif input == "n" or input == "no" or input == "" then
+            return false
+        else
+            print("Please answer y or n.")
+        end
+    end
+end
+
 ------------------------------------------------------------
 -- Utility Functions
 ------------------------------------------------------------
@@ -86,7 +104,10 @@ local function is_student_in_course(course, id)
     return false
 end
 
+<<<<<<< Updated upstream
 
+=======
+>>>>>>> Stashed changes
 local function show_student(student, course)
     if not student then
         print("[warning] Tried to show report for missing student.")
@@ -108,7 +129,7 @@ local function course_menu(course)
         print("4. Edit Grade")
         print("5. Add Assignment")
         print("6. Delete Assignment")
-        print("7. Create and Add Student to Course")
+        print("7. Add Student to Course")
         print("8. Remove Student from Course")
         print("9. Change Student Status")
         print("10. Save DB")
@@ -204,7 +225,7 @@ local function course_menu(course)
             print("Assignment deleted.")
 
         elseif opt == "7" then
-            Admin.create_and_add_student(course, db)        
+            Admin.create_and_add_student(course, db)    
 
         elseif opt == "8" then
             local sid = read_number("Enter Student ID to remove: ")
@@ -235,13 +256,8 @@ local function course_menu(course)
             print("Database saved.")
 
         elseif opt == "0" then
-            if db_dirty then
-                print("\n⚠ You have unsaved changes!")
-                print("Please choose option 10 (Save DB) before exiting.\n")
-            else
-                print("Returning to course list.")
-                break
-            end
+            print("Returning to course list.")
+            break
 
         else
             print("Invalid option.")
@@ -265,7 +281,12 @@ while true do
     if sel == 0 then
         if db_dirty then
             print("\n⚠ You have unsaved changes!")
-            print("Please choose option 10 (Save DB) inside a course before exiting.\n")
+            if confirm("Exit without saving?") then
+                print("Exiting program without saving changes. Goodbye!")
+                break
+            else
+                print("Exit cancelled. Please save your changes.")
+            end
         else
             print("Exiting program. Goodbye!")
             break
@@ -277,4 +298,3 @@ while true do
         print("Invalid selection. Please choose a valid course number.")
     end
 end
-
