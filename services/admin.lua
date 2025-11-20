@@ -56,4 +56,42 @@ function Admin.delete_assignment(course, assignment_id)
     end
 end
 
+function Admin.create_and_add_student(course, db)
+    print("\n--- Create New Student ---")
+
+    io.write("Enter student name: ")
+    local name = io.read()
+
+    if name == "" then
+        print("Creation cancelled.")
+        return
+    end
+
+    -- Generate next ID
+    local max_id = 0
+    for _, s in ipairs(db.students) do
+        if s.id > max_id then max_id = s.id end
+    end
+    local new_id = max_id + 1
+
+    -- Create student
+    local new_student = {
+        id = new_id,
+        name = name,
+        status = "active"
+    }
+
+    -- Add to DB
+    table.insert(db.students, new_student)
+
+    -- Add to course
+    table.insert(course.students, { id = new_id })
+
+    print(string.format(
+        "Created new student: %s (ID: %d) and added to course %s",
+        name, new_id, course.title
+    ))
+end
+
+
 return Admin

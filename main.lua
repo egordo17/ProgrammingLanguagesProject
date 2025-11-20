@@ -83,43 +83,6 @@ local function is_student_in_course(course, id)
     return false
 end
 
-local function add_student_to_course(course)
-    print("\nAvailable students to add:")
-
-    local has_available = false
-    for _, s in ipairs(db.students) do
-        if not is_student_in_course(course, s.id) then
-            has_available = true
-            print(string.format("ID: %d  Name: %s", s.id, s.name))
-        end
-    end
-
-    if not has_available then
-        print("All students are already in this course.")
-        return
-    end
-
-    local sid = read_number("Enter Student ID to add (or 0 to cancel): ")
-    if sid == 0 then
-        print("Add student cancelled.")
-        return
-    end
-
-    local student_obj = find_student(sid)
-    if not student_obj then
-        print("No student found with that ID.")
-        return
-    end
-
-    if is_student_in_course(course, sid) then
-        print("That student is already enrolled in this course.")
-        return
-    end
-
-    table.insert(course.students, { id = sid })
-    print("Student " .. student_obj.name .. " added to course " .. course.title .. ".")
-end
-
 local function show_student(student, course)
     if not student then
         print("[warning] Tried to show report for missing student.")
@@ -141,7 +104,7 @@ local function course_menu(course)
         print("4. Edit Grade")
         print("5. Add Assignment")
         print("6. Delete Assignment")
-        print("7. Add Student to Course")
+        print("7. Create and Add Student to Course")
         print("8. Remove Student from Course")
         print("9. Change Student Status")
         print("10. Save DB")
@@ -233,7 +196,7 @@ local function course_menu(course)
             print("Assignment deleted.")
 
         elseif opt == "7" then
-            add_student_to_course(course)
+            Admin.create_and_add_student(course, db)        
 
         elseif opt == "8" then
             local sid = read_number("Enter Student ID to remove: ")
