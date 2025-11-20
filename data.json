@@ -1,0 +1,188 @@
+{
+    "students": [
+        {
+            "id": 1,
+            "name": "Alice Johnson",
+            "grades": {
+                "ITSC 1212": 92,
+                "ENGL 1101": 85,
+                "PHYS 1101": 88,
+                "MATH 1241": 90,
+                "STAT 1220": 87
+            }
+        },
+        {
+            "id": 2,
+            "name": "Bob Smith",
+            "grades": {
+                "ITSC 1212": 78,
+                "ENGL 1101": 90,
+                "PHYS 1101": 82,
+                "MATH 1241": 75,
+                "HIST 1160": 80
+            }
+        },
+        {
+            "id": 3,
+            "name": "Charlie Lee",
+            "grades": {
+                "ITSC 1212": 85,
+                "ENGL 1101": 87,
+                "PHYS 1101": 91,
+                "STAT 1220": 88,
+                "ECON 2101": 84
+            }
+        },
+        {
+            "id": 4,
+            "name": "Diana Evans",
+            "grades": {
+                "ITSC 1212": 88,
+                "ENGL 1101": 92,
+                "PHYS 1101": 84,
+                "MATH 1241": 89,
+                "HIST 1160": 91
+            }
+        },
+        {
+            "id": 5,
+            "name": "Ethan Brown",
+            "grades": {
+                "ITSC 1212": 76,
+                "ENGL 1101": 81,
+                "PHYS 1101": 79,
+                "STAT 1220": 80,
+                "ECON 2101": 77
+            }
+        },
+        {
+            "id": 6,
+            "name": "Fiona Clark",
+            "grades": {
+                "ITSC 1212": 95,
+                "ENGL 1101": 89,
+                "PHYS 1101": 93,
+                "MATH 1241": 94,
+                "HIST 1160": 92
+            }
+        },
+        {
+            "id": 7,
+            "name": "George Miller",
+            "grades": {
+                "ITSC 1212": 82,
+                "ENGL 1101": 77,
+                "PHYS 1101": 80,
+                "STAT 1220": 79,
+                "ECON 2101": 81
+            }
+        },
+        {
+            "id": 8,
+            "name": "Hannah Wilson",
+            "grades": {
+                "ITSC 1212": 90,
+                "ENGL 1101": 94,
+                "PHYS 1101": 87,
+                "MATH 1241": 93,
+                "HIST 1160": 95
+            }
+        },
+        {
+            "id": 9,
+            "name": "Ian Martinez",
+            "grades": {
+                "ITSC 1212": 84,
+                "ENGL 1101": 83,
+                "PHYS 1101": 85,
+                "STAT 1220": 86,
+                "ECON 2101": 82
+            }
+        },
+        {
+            "id": 10,
+            "name": "Julia Kim",
+            "grades": {
+                "ITSC 1212": 91,
+                "ENGL 1101": 88,
+                "PHYS 1101": 90,
+                "MATH 1241": 92,
+                "HIST 1160": 90
+            }
+        }
+    ],
+    "courses": [
+        "ITSC 1212",
+        "ENGL 1101",
+        "PHYS 1101",
+        "MATH 1241",
+        "STAT 1220",
+        "HIST 1160",
+        "ECON 2101"
+    ],
+    "assignments": [
+        {
+            "course": "ITSC 1212",
+            "assignments": [
+                "Project 1",
+                "Project 2",
+                "Midterm",
+                "Final"
+            ]
+        },
+        {
+            "course": "ENGL 1101",
+            "assignments": [
+                "Essay 1",
+                "Essay 2",
+                "Presentation",
+                "Final Exam"
+            ]
+        },
+        {
+            "course": "PHYS 1101",
+            "assignments": [
+                "Lab 1",
+                "Lab 2",
+                "Quiz",
+                "Final"
+            ]
+        },
+        {
+            "course": "MATH 1241",
+            "assignments": [
+                "Homework 1",
+                "Homework 2",
+                "Midterm",
+                "Final"
+            ]
+        },
+        {
+            "course": "STAT 1220",
+            "assignments": [
+                "Quiz 1",
+                "Quiz 2",
+                "Project",
+                "Final"
+            ]
+        },
+        {
+            "course": "HIST 1160",
+            "assignments": [
+                "Paper 1",
+                "Paper 2",
+                "Midterm",
+                "Final"
+            ]
+        },
+        {
+            "course": "ECON 2101",
+            "assignments": [
+                "Assignment 1",
+                "Assignment 2",
+                "Midterm",
+                "Final"
+            ]
+        }
+    ]
+}
