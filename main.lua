@@ -107,18 +107,14 @@ local function course_menu(course)
         io.write("Choose option: ")
         local opt = io.read()
 
-        ------------------------------------------------------------
         -- Show all students
-        ------------------------------------------------------------
         if opt == "1" then
             for _, s in ipairs(course.students) do
                 local student_obj = find_student(s.id)
                 StudentReport.show(student_obj, course, db.submissions, db.weights, db.students)
             end
 
-        ------------------------------------------------------------
         -- Search student by name
-        ------------------------------------------------------------
         elseif opt == "2" then
             io.write("Enter student name: ")
             local name = io.read()
@@ -129,15 +125,11 @@ local function course_menu(course)
                 end
             end
 
-        ------------------------------------------------------------
         -- Show assignments
-        ------------------------------------------------------------
         elseif opt == "3" then
             CourseReport.show(course, db.submissions, db.students)
 
-        ------------------------------------------------------------
         -- Edit grade
-        ------------------------------------------------------------
         elseif opt == "4" then
             io.write("Enter Assignment ID to edit: ")
             local aid = tonumber(io.read())
@@ -159,9 +151,7 @@ local function course_menu(course)
                 print("Invalid student or assignment ID.")
             end
 
-        ------------------------------------------------------------
         -- Add assignment
-        ------------------------------------------------------------
         elseif opt == "5" then
             io.write("Assignment name: ")
             local name = io.read()
@@ -186,33 +176,25 @@ local function course_menu(course)
             end
             print("Assignment added.")
 
-        ------------------------------------------------------------
         -- Delete assignment
-        ------------------------------------------------------------
         elseif opt == "6" then
             io.write("Enter Assignment ID to delete: ")
             local aid = tonumber(io.read())
             Admin.delete_assignment(course, aid)
             print("Assignment deleted.")
 
-        ------------------------------------------------------------
         -- Add student to course
-        ------------------------------------------------------------
         elseif opt == "7" then
             add_student_to_course(course)
 
-        ------------------------------------------------------------
         -- Remove student from course
-        ------------------------------------------------------------
         elseif opt == "8" then
             io.write("Enter Student ID to remove: ")
             local sid = tonumber(io.read())
             Admin.remove_student(course, sid)
             print("Student removed from course.")
 
-        ------------------------------------------------------------
         -- Change student status
-        ------------------------------------------------------------
         elseif opt == "9" then
             io.write("Enter Student ID: ")
             local sid = tonumber(io.read())
@@ -226,16 +208,12 @@ local function course_menu(course)
                 print("Invalid Student ID.")
             end
 
-        ------------------------------------------------------------
         -- Save DB
-        ------------------------------------------------------------
         elseif opt == "10" then
             Persist.save(db_path, db)
             print("Database saved.")
 
-        ------------------------------------------------------------
         -- Back to courses
-        ------------------------------------------------------------
         elseif opt == "0" then
             break
         else
@@ -244,9 +222,7 @@ local function course_menu(course)
     end
 end
 
-------------------------------------------------------------
 -- Main Menu
-------------------------------------------------------------
 
 while true do
     print("\n--- Courses ---")
